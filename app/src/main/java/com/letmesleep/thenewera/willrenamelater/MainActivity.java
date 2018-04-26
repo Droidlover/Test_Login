@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void lockScreen(View view) {
         Toast.makeText(this, "locked", Toast.LENGTH_SHORT).show();
+        mDPM.setKeyguardDisabledFeatures(mDeviceAdminSample,DevicePolicyManager.KEYGUARD_DISABLE_FINGERPRINT);
         mDPM.lockNow();
     }
 
