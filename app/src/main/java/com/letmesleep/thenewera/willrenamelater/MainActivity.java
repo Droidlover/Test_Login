@@ -53,9 +53,6 @@ public class MainActivity extends AppCompatActivity {
         devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         adminCallReceiverComponent = new ComponentName(this, adminCallReceiver.class);
         isAdminActive = isAdminActive();
-        Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminCallReceiverComponent);
-        startActivityForResult(intent, REQUEST_CODE_ENABLE_ADMIN);
 
         ///DPM Setup
 
@@ -90,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
                     intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminCallReceiverComponent);
                     startActivityForResult(intent, REQUEST_CODE_ENABLE_ADMIN);
-
                 }
             }
             else
@@ -98,7 +94,11 @@ public class MainActivity extends AppCompatActivity {
                 devicePolicyManager.removeActiveAdmin(adminCallReceiverComponent);
                 isAdminActive= false;
             }
-
+         if(isAdminActive()){
+             ((CheckBox) view).setChecked(true);
+         }   else{
+             ((CheckBox) view).setChecked(false);
+         }
         }
     }
 
