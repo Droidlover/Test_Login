@@ -3,4 +3,7 @@
     <color name="colorPrimary">#784068</color>
     <color name="colorPrimaryDark">#784068</color>
     <color name="colorAccent">#784068</color>
+    <color name="themeColor">#784068</color>
+    <color name="disabledColor">#c1b9bf</color>
+    <color name="borderEditBox">#683d68</color>
 </resources>
