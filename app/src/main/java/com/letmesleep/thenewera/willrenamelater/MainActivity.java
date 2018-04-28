@@ -1,6 +1,8 @@
 package com.letmesleep.thenewera.willrenamelater;
 
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
@@ -14,6 +16,7 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -29,7 +32,10 @@ public class MainActivity extends AppCompatActivity {
     boolean isAdminActive;
     static TextView startTime;
     static TextView endTime;
-    private int startHour, startMinute, endHour, endMinute;
+    CheckBox toggleAdmin;
+    static Calendar serviceStartTime;
+    static Calendar serviceEndTime;
+    static private int startHour = 00, startMinute=48, endHour=00, endMinute=00;
     private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
     //Variables Decalration End
 
@@ -38,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
         //Date Time Setup
         startTime = (TextView) findViewById(R.id.startTime);
         endTime = (TextView) findViewById(R.id.endTime);
@@ -48,16 +52,64 @@ public class MainActivity extends AppCompatActivity {
         //Intent service = new Intent(getApplicationContext(), JokeService.class);
         //startService(new Intent(MainActivity.this, JokeService.class)); // Lancement du service
         //finish();`
-
+        toggleAdmin = (CheckBox) findViewById(R.id.toggleAdmin);
         ///DPM Setup
         devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         adminCallReceiverComponent = new ComponentName(this, adminCallReceiver.class);
         isAdminActive = isAdminActive();
 
         ///DPM Setup
+        toggleAdmin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
+                if(isChecked!=isAdminActive){
+                    if(isChecked==true){
+                        Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+                         intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminCallReceiverComponent);
+                         startActivityForResult(intent, REQUEST_CODE_ENABLE_ADMIN);
+                    }
+                    else
+            {
+                devicePolicyManager.removeActiveAdmin(adminCallReceiverComponent);
+                isAdminActive= false;
+            }
+                }
+            }
+        }
+        );
+
+        //Alarm - Servivce Trigger Logic
+//        this.runOnUiThread(new Runnable() {
+//            public void run() {
+//
+//            }
+//        });
+        setServiceSchedule();
+                Intent intent = new Intent(getApplicationContext(), JokeService.class);
+                PendingIntent pintent = PendingIntent.getService(MainActivity.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                AlarmManager alarmManager = (AlarmManager) getApplicationContext()
+                        .getSystemService(Context.ALARM_SERVICE);
+                Log.i("time in millis",String.valueOf(serviceStartTime.getTime()));
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                        serviceStartTime.getTimeInMillis(), serviceStartTime.getTimeInMillis(),
+                        pintent);
+//        startService(intent);
     }
+    public static void setServiceSchedule(){
+        serviceStartTime = Calendar.getInstance();
+        serviceStartTime.set(Calendar.HOUR_OF_DAY, startHour);
+        serviceStartTime.set(Calendar.MINUTE, startMinute);
 
+        serviceEndTime = Calendar.getInstance();
+        serviceEndTime.set(Calendar.HOUR_OF_DAY, endHour);
+        serviceEndTime.set(Calendar.MINUTE, endMinute);
+    }
+    public void onResume() {
+        super.onResume();
+        isAdminActive = isAdminActive();
+        toggleAdmin.setChecked(isAdminActive);
+    }
     private boolean isAdminActive() {
         return devicePolicyManager.isAdminActive(adminCallReceiverComponent);
     }
@@ -78,30 +130,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void toggleAdminAccess(View view) {
-        boolean checked = ((CheckBox) view).isChecked();
-        if(view.getId() == R.id.toggleAdmin){
-            if (checked)
-            {
-                if(!isAdminActive) {
-                    Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-                    intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminCallReceiverComponent);
-                    startActivityForResult(intent, REQUEST_CODE_ENABLE_ADMIN);
-                }
-            }
-            else
-            {
-                devicePolicyManager.removeActiveAdmin(adminCallReceiverComponent);
-                isAdminActive= false;
-            }
-         if(isAdminActive()){
-             ((CheckBox) view).setChecked(true);
-         }   else{
-             ((CheckBox) view).setChecked(false);
-         }
-        }
-    }
-
     //Device Admin Receiver Class
     public static class adminCallReceiver extends DeviceAdminReceiver {
         void showToast(Context context, String msg) {
@@ -111,9 +139,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction() == ACTION_DEVICE_ADMIN_DISABLE_REQUESTED) { abortBroadcast();Toast.makeText(context, "abortee", Toast.LENGTH_SHORT).show();
+            if (intent.getAction() == ACTION_DEVICE_ADMIN_DISABLE_REQUESTED) {
                 abortBroadcast();
-            } abortBroadcast();Toast.makeText(context, " no abortee", Toast.LENGTH_SHORT).show();
+            }
             super.onReceive(context, intent);
         }
 
@@ -153,13 +181,17 @@ public class MainActivity extends AppCompatActivity {
             String displayTime = String.format("%02d",hourOfDay) + ":" + String.format("%02d",minute);
             if(getFragmentManager().findFragmentByTag("StartDate")!= null)
             {
-
+                startHour = hourOfDay;
+                startMinute = minute;
                 startTime.setText(displayTime);
+                setServiceSchedule();
             }
             else if(getFragmentManager().findFragmentByTag("EndDate")!= null)
             {
-
+                endHour = hourOfDay;
+                endMinute = minute;
                 endTime.setText(displayTime);
+                setServiceSchedule();
             }
         }
 

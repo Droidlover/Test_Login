@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.letmesleep.thenewera.willrenamelater">
-
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -28,7 +28,7 @@
         <service
             android:name=".JokeService"
             android:enabled="true"
-            android:exported="true"
+            android:exported="false"
             android:stopWithTask="false"></service>
     </application>
 
