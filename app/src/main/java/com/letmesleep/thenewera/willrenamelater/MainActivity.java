@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,8 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -30,8 +33,8 @@ import static java.util.Calendar.HOUR_OF_DAY;
 public class MainActivity extends AppCompatActivity {
 
     //Variables Decalration
-    DevicePolicyManager devicePolicyManager;
-    ComponentName adminCallReceiverComponent;
+    static DevicePolicyManager devicePolicyManager;
+    static ComponentName adminCallReceiverComponent;
     boolean isAdminActive;
     static TextView startTime;
     static TextView endTime;
@@ -42,7 +45,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
-    Intent service;
+    boolean isAppEnabled = false;
+    Switch isAppEnabledToggle;
+    LinearLayout disabledLayer;
+    Intent intent;
     //Variables Decalration End
 
 
@@ -53,22 +59,17 @@ public class MainActivity extends AppCompatActivity {
         //Date Time Setup
         startTime = (TextView) findViewById(R.id.startTime);
         endTime = (TextView) findViewById(R.id.endTime);
+        disabledLayer = (LinearLayout) findViewById(R.id.disabledLayer);
         //Date Time Setup End
         sharedPreferences = getSharedPreferences("com.letmesleep.thenewera.willrenamelater",MODE_PRIVATE);
         editor = sharedPreferences.edit();
-        service = new Intent(getApplicationContext(), JokeService.class);
-        startService(new Intent(MainActivity.this, JokeService.class)); // Lancement du service
         toggleAdmin = (CheckBox) findViewById(R.id.toggleAdmin);
         ///DPM Setup
         devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         adminCallReceiverComponent = new ComponentName(this, adminCallReceiver.class);
         isAdminActive = isAdminActive();
-        devicePolicyManager.getKeyguardDisabledFeatures(null);
-        devicePolicyManager.getKeyguardDisabledFeatures(adminCallReceiverComponent);
-        devicePolicyManager.setKeyguardDisabledFeatures(adminCallReceiverComponent,DevicePolicyManager.KEYGUARD_DISABLE_FEATURES_NONE);
-        devicePolicyManager.getKeyguardDisabledFeatures(null);
-        devicePolicyManager.getKeyguardDisabledFeatures(adminCallReceiverComponent);
         ///DPM Setup
+        isAppEnabledToggle = (Switch) findViewById(R.id.toggleService);
         toggleAdmin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
@@ -78,26 +79,27 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
                          intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminCallReceiverComponent);
                          startActivityForResult(intent, REQUEST_CODE_ENABLE_ADMIN);
+                        disabledLayer.setVisibility(View.GONE);
                     }
                     else
             {
                 devicePolicyManager.removeActiveAdmin(adminCallReceiverComponent);
                 isAdminActive= false;
+                disabledLayer.setVisibility(View.VISIBLE);
             }
                 }
             }
         }
         );
+    }
 
-        //Alarm - Servivce Trigger Logic
-//        this.runOnUiThread(new Runnable() {
-//            public void run() {
-//
-//            }
-//        });
-
-        Long startTimeFromSharedPreference = sharedPreferences.getLong("Start Time",-1);
-        Long endTimeFromSharedPreference = sharedPreferences.getLong("End Time",-1);
+    @Override
+    public void onStart() {
+        super.onStart();
+        intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+        Long startTimeFromSharedPreference = sharedPreferences.getLong("StartTime",-1);
+        Long endTimeFromSharedPreference = sharedPreferences.getLong("EndTime",-1);
+        Long appEnabledFlag = sharedPreferences.getLong("Enabled",0);
         if(startTimeFromSharedPreference != -1 && endTimeFromSharedPreference != -1){
             Calendar temp = Calendar.getInstance();
             temp.setTimeInMillis(startTimeFromSharedPreference);
@@ -107,30 +109,40 @@ public class MainActivity extends AppCompatActivity {
             endHour = temp.get(HOUR_OF_DAY);
             endMinute = temp.get(Calendar.MINUTE);
         }
-        setServiceSchedule();
+        if(appEnabledFlag == 1){
 
-//        startService(intent);
+        isAppEnabled = true;
+        isAppEnabledToggle.setChecked(isAppEnabled);
+           }
+        setServiceSchedule();
     }
     public void setAlarmForService(){
-        Intent intent = new Intent(getApplicationContext(), JokeService.class);
-        PendingIntent pintent = PendingIntent.getService(MainActivity.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarmManager = (AlarmManager) getApplicationContext()
-                .getSystemService(Context.ALARM_SERVICE);
-        Log.i("time in millis",String.valueOf(serviceStartTime.getTime()));
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-                serviceStartTime.getTimeInMillis(), serviceStartTime.getTimeInMillis(),
-                pintent);
-
-        devicePolicyManager.setKeyguardDisabledFeatures(adminCallReceiverComponent,DevicePolicyManager.KEYGUARD_DISABLE_FEATURES_NONE);
-//
-//        Intent intent2 = new Intent(getApplicationContext(), JokeService.class);
-//        PendingIntent pintent2 = PendingIntent.getBroadcast(MainActivity.this, JokeService.SERVICE_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        AlarmManager alarmManager2 = (AlarmManager) getApplicationContext()
+//        Intent intent = new Intent(getApplicationContext(), JokeService.class);
+//        PendingIntent pintent = PendingIntent.getService(MainActivity.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        AlarmManager alarmManager = (AlarmManager) getApplicationContext()
 //                .getSystemService(Context.ALARM_SERVICE);
 //        Log.i("time in millis",String.valueOf(serviceStartTime.getTime()));
-//        alarmManager2.setRepeating(AlarmManager.RTC_WAKEUP,
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
 //                serviceStartTime.getTimeInMillis(), serviceStartTime.getTimeInMillis(),
 //                pintent);
+
+        intent.putExtra("finger",0);
+        AlarmManager alarmManager = (AlarmManager) getApplicationContext()
+                .getSystemService(Context.ALARM_SERVICE);
+        PendingIntent pintentStart = PendingIntent.getBroadcast(MainActivity.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pintentStart);
+        intent.putExtra("finger",1);
+        PendingIntent pintentEnd = PendingIntent.getBroadcast(MainActivity.this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pintentEnd);
+        Log.i("time in millis",String.valueOf(serviceStartTime.getTime()));
+        if(isAppEnabled && isAdminActive){
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                serviceStartTime.getTimeInMillis(),
+                pintentStart);
+
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                serviceEndTime.getTimeInMillis(),
+                pintentEnd);}
     }
     public void setServiceSchedule(){
         serviceStartTime = Calendar.getInstance();
@@ -148,22 +160,24 @@ public class MainActivity extends AppCompatActivity {
         String endTimedisplay = String.format("%02d",endHour) + ":" + String.format("%02d",endMinute);
         startTime.setText(startTimedisplay);
         endTime.setText(endTimedisplay);
+        Log.i("myapp Start time",String.valueOf(serviceStartTime.getTime()));
+        Log.i("myapp Start time",String.valueOf(serviceEndTime.getTime()));
         setAlarmForService();
-        Long startTimeFromSharedPreference = sharedPreferences.getLong("Start Time",-1);
-        Long endTimeFromSharedPreference = sharedPreferences.getLong("End Time",-1);
         Long sharedPreferencesSavedStartTime= serviceStartTime.getTimeInMillis();
         Long sharedPreferencesSavedEndTime= serviceEndTime.getTimeInMillis();
-        editor.putLong("Start Time",sharedPreferencesSavedStartTime);
-        editor.putLong("End Time",sharedPreferencesSavedEndTime);
+        editor.putLong("StartTime",sharedPreferencesSavedStartTime);
+        editor.putLong("EndTime",sharedPreferencesSavedEndTime);
         editor.apply();
-
     }
     public void onResume() {
         super.onResume();
         isAdminActive = isAdminActive();
         toggleAdmin.setChecked(isAdminActive);
-
-
+        if(isAdminActive){
+            disabledLayer.setVisibility(View.GONE);}
+        else {
+            disabledLayer.setVisibility(View.VISIBLE);
+        }
     }
     private boolean isAdminActive() {
         return devicePolicyManager.isAdminActive(adminCallReceiverComponent);
@@ -171,7 +185,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void lockScreen(View view) {
         devicePolicyManager.setKeyguardDisabledFeatures(adminCallReceiverComponent,DevicePolicyManager.KEYGUARD_DISABLE_FINGERPRINT);
-        devicePolicyManager.lockNow();
     }
 
     public void setStartTime(View view) {
@@ -190,8 +203,6 @@ public class MainActivity extends AppCompatActivity {
         }, hour, minute, true);//Yes 24 hour time
         mTimePicker.setTitle("Select Time");
         mTimePicker.show();
-
-
     }
 
     public void setEndTime(View view) {
@@ -209,16 +220,19 @@ public class MainActivity extends AppCompatActivity {
         }, hour, minute, true);//Yes 24 hour time
         mTimePicker.setTitle("Select Time");
         mTimePicker.show();
-
-
     }
 
     public void appInServiceFlag(View view) {
-        startService(service); // Lancement du service
+isAppEnabled = !isAppEnabled;
+if(isAppEnabled){
+    setAlarmForService();
+        editor.putLong("Enabled",1);
+    }else{
+    editor.putLong("Enabled",0);
+}
+editor.apply();
     }
-    public void appInServiceFlagTemp(View view) {
-        stopService(service); // Lancement du service
-    }
+
 
     //Device Admin Receiver Class
     public static class adminCallReceiver extends DeviceAdminReceiver {
@@ -252,29 +266,30 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-//    public static class TimePickerFragment
-//            implements TimePickerDialog.OnTimeSetListener {
-//
-//       @Override
-//        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-//
-//            if(getFragmentManager().findFragmentByTag("StartDate")!= null)
-//            {
-//                startHour = hourOfDay;
-//                startMinute = minute;
-//               // startTime.setText(displayTime);
-//                setServiceSchedule();
-//            }
-//            else if(getFragmentManager().findFragmentByTag("EndDate")!= null)
-//            {
-//                endHour = hourOfDay;
-//                endMinute = minute;
-//               // endTime.setText(displayTime);
-//                setServiceSchedule();
-//            }
-//        }
-//
-//
-//    }
+    public static class AlarmReceiver extends BroadcastReceiver
+    {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            DevicePolicyManager devicePolicyManager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            ComponentName adminCallReceiverComponent = new ComponentName(context, adminCallReceiver.class);
+            int whatToDo = intent.getIntExtra("finger",2);
+            if(whatToDo == 0) {
+                Toast.makeText(context, "Don't panik but your time is up!!!!.",
+                        Toast.LENGTH_LONG).show();
+                Log.i("Fingerprint Disabled", "Yes");
+                devicePolicyManager.setKeyguardDisabledFeatures(adminCallReceiverComponent, DevicePolicyManager.KEYGUARD_DISABLE_FINGERPRINT);
+            }
+            else if(whatToDo == 1){
+                Log.i("Fingerprint Disabled", "No");
+                devicePolicyManager.setKeyguardDisabledFeatures(adminCallReceiverComponent, DevicePolicyManager.KEYGUARD_DISABLE_FEATURES_NONE);
+            }
+            else {
+                Log.i("Fingerprint Disabled", "Dont Know");
+
+            }
+        }
+    }
+
 
 }
