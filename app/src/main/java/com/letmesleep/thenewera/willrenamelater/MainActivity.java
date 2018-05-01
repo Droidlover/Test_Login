@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         intent = new Intent(getApplicationContext(), AlarmReceiver.class);
         Long startTimeFromSharedPreference = sharedPreferences.getLong("StartTime",-1);
         Long endTimeFromSharedPreference = sharedPreferences.getLong("EndTime",-1);
-        Long appEnabledFlag = sharedPreferences.getLong("Enabled",0);
+        boolean appEnabledFlag = sharedPreferences.getBoolean("isAppEnabled",false);
         if(startTimeFromSharedPreference != -1 && endTimeFromSharedPreference != -1){
             Calendar temp = Calendar.getInstance();
             temp.setTimeInMillis(startTimeFromSharedPreference);
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             endHour = temp.get(HOUR_OF_DAY);
             endMinute = temp.get(Calendar.MINUTE);
         }
-        if(appEnabledFlag == 1){
+        if(appEnabledFlag){
 
         isAppEnabled = true;
         isAppEnabledToggle.setChecked(isAppEnabled);
@@ -226,9 +226,11 @@ public class MainActivity extends AppCompatActivity {
 isAppEnabled = !isAppEnabled;
 if(isAppEnabled){
     setAlarmForService();
-        editor.putLong("Enabled",1);
+        editor.putBoolean("isAppEnabled",true);
+        editor.apply();
     }else{
-    editor.putLong("Enabled",0);
+    editor.putBoolean("isAppEnabled",false);
+    editor.apply();
 }
 editor.apply();
     }
