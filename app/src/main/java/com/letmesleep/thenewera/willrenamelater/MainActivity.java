@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     Switch isAppEnabledToggle;
     LinearLayout disabledLayer;
     Intent intent;
+    ImageView disabledImage;
     //Variables Decalration End
 
 
@@ -56,10 +59,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setIcon(R.mipmap.ic_launcher_self_round);
+//        actionBar.setElevation(0);
         //Date Time Setup
         startTime = (TextView) findViewById(R.id.startTime);
         endTime = (TextView) findViewById(R.id.endTime);
         disabledLayer = (LinearLayout) findViewById(R.id.disabledLayer);
+        disabledImage = (ImageView) findViewById(R.id.disabledFP);
         //Date Time Setup End
         sharedPreferences = getSharedPreferences("com.letmesleep.thenewera.willrenamelater",MODE_PRIVATE);
         editor = sharedPreferences.edit();
@@ -113,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
 
         isAppEnabled = true;
         isAppEnabledToggle.setChecked(isAppEnabled);
+            disabledImage.animate().alpha(1f).setDuration(1000);
            }
         setServiceSchedule();
     }
@@ -228,11 +237,25 @@ if(isAppEnabled){
     setAlarmForService();
         editor.putBoolean("isAppEnabled",true);
         editor.apply();
+    disabledImage.animate().alpha(1f).setDuration(1000);
     }else{
     editor.putBoolean("isAppEnabled",false);
     editor.apply();
+    setServiceSchedule();
+    disabledImage.animate().alpha(0f).setDuration(1000);
 }
 editor.apply();
+    }
+
+    public void enableFingerPrint(View view) {
+        devicePolicyManager.setKeyguardDisabledFeatures(adminCallReceiverComponent,DevicePolicyManager.KEYGUARD_DISABLE_FEATURES_NONE);
+        Toast.makeText(this, "Enabled",
+                Toast.LENGTH_SHORT).show();
+    }
+    public void disableFingerPrint(View view) {
+        devicePolicyManager.setKeyguardDisabledFeatures(adminCallReceiverComponent,DevicePolicyManager.KEYGUARD_DISABLE_FINGERPRINT);
+        Toast.makeText(this, "Disabled",
+                Toast.LENGTH_SHORT).show();
     }
 
 
@@ -277,8 +300,8 @@ editor.apply();
             ComponentName adminCallReceiverComponent = new ComponentName(context, adminCallReceiver.class);
             int whatToDo = intent.getIntExtra("finger",2);
             if(whatToDo == 0) {
-                Toast.makeText(context, "Don't panik but your time is up!!!!.",
-                        Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Start Alarm Set",
+                        Toast.LENGTH_SHORT).show();
                 Log.i("Fingerprint Disabled", "Yes");
                 devicePolicyManager.setKeyguardDisabledFeatures(adminCallReceiverComponent, DevicePolicyManager.KEYGUARD_DISABLE_FINGERPRINT);
             }

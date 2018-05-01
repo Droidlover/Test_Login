@@ -13,6 +13,21 @@
                       <PersistentState>
                         <option name="children">
                           <map>
+                            <entry key="actionbar">
+                              <value>
+                                <PersistentState>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="assetType" value="IMAGE" />
+                                      <entry key="imageAsset" value="C:\Users\Aman\Desktop\icon-black.png" />
+                                      <entry key="outputName" value="app_bar_icon" />
+                                      <entry key="theme" value="HOLO_DARK" />
+                                      <entry key="themeColor" value="ffffff" />
+                                    </map>
+                                  </option>
+                                </PersistentState>
+                              </value>
+                            </entry>
                             <entry key="launcher">
                               <value>
                                 <PersistentState>
@@ -23,7 +38,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="scalingPercent" value="40" />
+                                                <entry key="scalingPercent" value="66" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -34,16 +49,33 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="7a436a" />
-                                      <entry key="backgroundLayerName" value="icon_Background_final" />
+                                      <entry key="backgroundColor" value="784068" />
+                                      <entry key="backgroundLayerName" value="app_bar_icon_bg" />
                                       <entry key="foregroundImage" value="C:\Users\Aman\Desktop\icon-black.png" />
-                                      <entry key="foregroundLayerName" value="icon_foreground_final" />
-                                      <entry key="outputName" value="ic_launcher_self" />
+                                      <entry key="foregroundLayerName" value="app_bar_icon_fg" />
+                                      <entry key="outputName" value="app_bar_icon" />
+                                      <entry key="previewDensity" value="XXXHIGH" />
                                     </map>
                                   </option>
                                 </PersistentState>
                               </value>
                             </entry>
+                            <entry key="notification">
+                              <value>
+                                <PersistentState>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="assetType" value="IMAGE" />
+                                    </map>
+                                  </option>
+                                </PersistentState>
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
+                        <option name="values">
+                          <map>
+                            <entry key="outputIconType" value="ACTIONBAR" />
                           </map>
                         </option>
                       </PersistentState>
@@ -65,8 +97,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_finger" />
-                            <entry key="sourceFile" value="C:\Users\Aman\Desktop\MyFirstProject\Test_Login\app\src\main\res\drawable-v24\finger.svg" />
+                            <entry key="outputName" value="ic_cross_line_48px" />
+                            <entry key="sourceFile" value="C:\Users\Aman\Desktop\cross_line_48px.svg" />
                           </map>
                         </option>
                       </PersistentState>

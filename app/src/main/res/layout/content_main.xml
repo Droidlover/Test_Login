@@ -5,6 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shapes_button"
+        android:onClick="disableFingerPrint"
+        android:text="Click to Manually Disable Finger Print Scanner"
+        android:textSize="8sp"
+        app:layout_constraintBottom_toTopOf="@+id/button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <EditText
         android:id="@+id/endTime"
         android:layout_width="151dp"
@@ -55,7 +68,19 @@
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/disabledFP"
+        android:layout_width="97dp"
+        android:layout_height="87dp"
+        android:layout_marginTop="20dp"
+        android:alpha="0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider"
+        app:srcCompat="@drawable/ic_cross_line_48px" />
+
+    <ImageView
+        android:id="@+id/imageView"
         android:layout_width="97dp"
         android:layout_height="87dp"
         android:layout_marginTop="20dp"
@@ -95,7 +120,7 @@
         app:layout_constraintEnd_toEndOf="@+id/endTime"
         app:layout_constraintStart_toEndOf="@+id/textView4"
         app:layout_constraintStart_toStartOf="@+id/endTime"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+        app:layout_constraintTop_toBottomOf="@+id/disabledFP" />
 
     <TextView
         android:id="@+id/textView4"
@@ -149,10 +174,23 @@
         android:layout_height="0dp"
         android:background="#13555555 "
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider"
-        android:clickable="true"></LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/divider"></LinearLayout>
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shapes_button"
+        android:onClick="enableFingerPrint"
+        android:text="Please click here In Case of Any issue Like Fingerprint Not Working."
+        android:textSize="8sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
