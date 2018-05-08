@@ -3,7 +3,7 @@
     <!-- ============================== -->
     <!--  app/device policies examples strings     -->
     <!-- ============================== -->
-
+    <string name="admin_message">(This app require Admin privilages to function. Please grant the access to enable below controls...)</string>
     <!-- Manifest strings -->
     <string name="activity_sample_device_admin">App/Device Admin</string>
     <string name="sample_device_admin">Sample Device Admin</string>
